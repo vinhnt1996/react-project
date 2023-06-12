@@ -5,6 +5,7 @@ import TableUserListComponent from "./components/TableUserListComponent";
 import Container from "react-bootstrap/Container";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function App() {
   return (

@@ -5,6 +5,9 @@ import ReactPaginate from "react-paginate";
 import ModalComponent from "./ModalComponent";
 import ModalEditComponent from "./ModalEditComponent";
 import ModalDeleteComponent from "./ModalDeleteComponent";
+import "./TableUser.scss";
+import _ from "lodash";
+import { debounce } from "lodash";
 const TableUserListComponent = () => {
   const [listUser, setListUsers] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -21,6 +24,8 @@ const TableUserListComponent = () => {
   const [isShowModalDelete, setIsShowModalDelete] = useState(false);
   const [dataUserEdit, setDataUserEdit] = useState({});
   const [dataUserDelete, setDataUserDelete] = useState({});
+  const [sortBy, setSortBy] = useState("asc");
+  const [sortField, setSortField] = useState("");
   useEffect(() => {
     getListUser(1);
   }, []);
@@ -49,7 +54,7 @@ const TableUserListComponent = () => {
     setDataUserEdit(user);
   };
   const handleEditUserFromModal = (user) => {
-    let listUserCopy = [...listUser];
+    let listUserCopy = _.cloneDeep(listUser);
     let index = listUser.findIndex((item) => item.id === user.id);
     listUserCopy[index].first_name = user.first_name;
     setListUsers(listUserCopy);
@@ -59,10 +64,27 @@ const TableUserListComponent = () => {
     setDataUserDelete(item);
   };
   const handleDeleteUserFromModal = (user) => {
-    let listUserCopy = [...listUser];
+    let listUserCopy = _.cloneDeep(listUser);
     listUserCopy = listUserCopy.filter((item) => item.id !== user.id);
     setListUsers(listUserCopy);
   };
+  const handleSort = (sortBy, sortField) => {
+    setSortBy(sortBy);
+    setSortField(sortField);
+    let listCloneUser = _.cloneDeep(listUser);
+    listCloneUser = _.orderBy(listCloneUser, [sortField], [sortBy]);
+    setListUsers(listCloneUser);
+  };
+  const handleSearch = debounce((event) => {
+    let word = event.target.value;
+    if (word) {
+      let listCloneUser = _.cloneDeep(listUser);
+      listCloneUser = listCloneUser.filter((item) => item.email.includes(word));
+      setListUsers(listCloneUser);
+    } else {
+      getListUser(1);
+    }
+  }, 200);
   return (
     <>
       <div className="block-header">
@@ -73,12 +95,47 @@ const TableUserListComponent = () => {
           Add Member
         </button>
       </div>
+      <div className="col-6 my-3">
+        <input
+          className="form-control"
+          placeholder="Search user by email"
+          onChange={(event) => handleSearch(event)}
+        />
+      </div>
       <Table striped bordered hover>
         <thead>
           <tr>
-            <th>ID</th>
+            <th>
+              <div className="sort-header">
+                <span>ID</span>
+                <span>
+                  <i
+                    className="fa-solid fa-arrow-down-long"
+                    onClick={() => handleSort("desc", "id")}
+                  ></i>
+                  <i
+                    className="fa-solid fa-arrow-up-long"
+                    onClick={() => handleSort("asc", "id")}
+                  ></i>
+                </span>
+              </div>
+            </th>
             <th>EMAIL</th>
-            <th>FIRST NAME</th>
+            <th>
+              <div className="sort-header">
+                <span>FIRST NAME</span>
+                <span>
+                  <i
+                    className="fa-solid fa-arrow-down-long"
+                    onClick={() => handleSort("desc", "first_name")}
+                  ></i>
+                  <i
+                    className="fa-solid fa-arrow-up-long"
+                    onClick={() => handleSort("asc", "first_name")}
+                  ></i>
+                </span>
+              </div>
+            </th>
             <th>LAST NAME</th>
             <th>Action</th>
           </tr>
