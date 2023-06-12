@@ -8,6 +8,7 @@ import ModalDeleteComponent from "./ModalDeleteComponent";
 import "./TableUser.scss";
 import _ from "lodash";
 import { debounce } from "lodash";
+import { CSVLink, CSVDownload } from "react-csv";
 const TableUserListComponent = () => {
   const [listUser, setListUsers] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -26,6 +27,7 @@ const TableUserListComponent = () => {
   const [dataUserDelete, setDataUserDelete] = useState({});
   const [sortBy, setSortBy] = useState("asc");
   const [sortField, setSortField] = useState("");
+  const [dataExport, setDataExport] = useState([]);
   useEffect(() => {
     getListUser(1);
   }, []);
@@ -85,15 +87,46 @@ const TableUserListComponent = () => {
       getListUser(1);
     }
   }, 200);
+  const getUsersExport = (event, done) => {
+    let results = [];
+    if (listUser && listUser.length > 0) {
+      results.push(["Id", "Email", "First name", "Last name"]);
+      listUser.map((item, index) => {
+        let arr = [];
+        arr[0] = item.id;
+        arr[1] = item.email;
+        arr[2] = item.first_name;
+        arr[3] = item.last_name;
+        results.push(arr);
+      });
+      setDataExport(results);
+      done();
+    }
+  };
   return (
     <>
       <div className="block-header">
         <span>
           <b>List Users:</b>
         </span>
-        <button className="btn btn-success my-1" onClick={handleShow}>
-          Add Member
-        </button>
+        <div className="group-btn">
+          <label htmlFor="import" className="btn btn-warning">
+            <i className="fa-solid fa-file-import"></i> Import
+          </label>
+          <input type="file" id="import" hidden />
+          <CSVLink
+            filename={"users.csv"}
+            className="btn btn-primary"
+            data={dataExport}
+            asyncOnClick={true}
+            onClick={getUsersExport}
+          >
+            <i className="fa-solid fa-file-arrow-down"></i> Export
+          </CSVLink>
+          <button className="btn btn-success" onClick={handleShow}>
+            <i className="fa-solid fa-circle-plus"></i>Add Member
+          </button>
+        </div>
       </div>
       <div className="col-6 my-3">
         <input

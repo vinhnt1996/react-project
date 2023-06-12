@@ -5,3 +5,16 @@
         padding: 0 2px;
     }
 }
+.block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .group-btn{
+        display: flex;
+        gap: 10px;
+        i{
+            padding: 0px 2px;
+        }
+    }
+}
+  
